@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:smartersvpn/servicedetails.dart';
+import 'servicedetails.dart';
+import 'styling.dart';
+import 'Comman.dart';
 
 class VpnScreen extends StatefulWidget {
   @override
@@ -12,14 +12,12 @@ class VpnScreen extends StatefulWidget {
 }
 
 class _VpnScreenState extends State<VpnScreen> {
-  String? _configFilePath;
-  Process? _vpnProcess;
-  String _log = '';
   String baseurl = 'https://billing.smartersvpn.com/client-v1';
   List services = [];
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   //init state
+  @override
   initState() {
     super.initState();
     _prefs.then((SharedPreferences prefs) {
@@ -46,7 +44,7 @@ class _VpnScreenState extends State<VpnScreen> {
       // return error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(jsonObj['message']),
+          content: Text(jsonObj['message'], style: LabelStyle),
         ),
       );
     }
@@ -56,7 +54,22 @@ class _VpnScreenState extends State<VpnScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('VPN Connection App'),
+        title: Center(
+          child: Text(
+            'VPN Services List',
+            style: LabelStyle,
+          ),
+        ),
+        automaticallyImplyLeading: false,
+        actions: <Widget>[
+          //hide back button
+          Theme(
+            data: Theme.of(context).copyWith(
+              cardColor: const Color.fromARGB(255, 94, 88, 88),
+            ),
+            child: moreMenu(_prefs, context),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -64,43 +77,83 @@ class _VpnScreenState extends State<VpnScreen> {
           children: [
             //list of services
             Expanded(
-              child: ListView.builder(
+              child: ListView.separated(
+                shrinkWrap: true,
                 itemCount: services.length,
                 itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(services[index]['products']['title']),
-                    subtitle: Text("Status: " + services[index]['status']),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ServiceDetailScreen(service: services[index]),
+                  return Container(
+                    height: 55,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Image.asset(
+                              'assets/smalllogo.png',
+                              width: 30,
+                              height: 30,
+                            ),
+                            Expanded(
+                              child: Container(
+                                width: double.maxFinite,
+                                padding: EdgeInsets.only(left: 10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      services[index]['products']['title'],
+                                      style: LabelStyle1,
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      'Due on ${services[index]['next_due_date']}',
+                                      style: LabelStyle2,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {},
+                              child: Text('${services[index]['status']}',
+                                  style: LabelStyle),
+                              style: buttonStyle3(context),
+                            ),
+                            Padding(
+                                padding: EdgeInsets.only(left: 10),
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ServiceDetailScreen(
+                                            service: services[index],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Image.asset('assets/arrow.png',
+                                        width: 20, height: 20),
+                                  ),
+                                )),
+                          ],
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   );
                 },
+                separatorBuilder: (BuildContext context, int index) =>
+                    const SizedBox(height: 10),
               ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  Future<void> _pickFile() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles();
-      if (result != null) {
-        setState(() {
-          _configFilePath = result.files.single.path;
-        });
-      } else {
-        // User canceled the picker
-      }
-    } catch (e) {
-      print('Failed to pick file: $e');
-    }
   }
 }

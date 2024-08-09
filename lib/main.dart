@@ -3,10 +3,17 @@ import 'package:smartersvpn/login.dart';
 import 'vpn.dart';
 import 'dart:io' show Platform;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:desktop_window/desktop_window.dart';
+import 'theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {}
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    DesktopWindow.setWindowSize(const Size(500, 900));
+    //disable maximize button
+    DesktopWindow.setMinWindowSize(const Size(500, 900));
+  }
+
   runApp(SmarterVPNConnect());
 }
 
@@ -19,6 +26,7 @@ class SmarterVPNConnect extends StatefulWidget {
 class _SmarterVPNConnectState extends State<SmarterVPNConnect> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   bool isLogin = false;
+  final bool _isDarkMode = true;
   @override
   void initState() {
     super.initState();
@@ -26,7 +34,9 @@ class _SmarterVPNConnectState extends State<SmarterVPNConnect> {
     _prefs.then((SharedPreferences prefs) {
       final String? accesstoken = prefs.getString('accesstoken');
       if (accesstoken != null) {
-        isLogin = true;
+        setState(() {
+          isLogin = true;
+        });
       }
     });
   }
@@ -34,11 +44,10 @@ class _SmarterVPNConnectState extends State<SmarterVPNConnect> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'VPN Connection App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      title: 'Smarter VPN app',
+      theme: _isDarkMode ? darkTheme : lightTheme,
       home: isLogin ? VpnScreen() : LoginScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
