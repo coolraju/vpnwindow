@@ -38,7 +38,7 @@ class _VpnScreenState extends State<VpnScreen> {
     if (jsonObj['success'] == true) {
       setState(() {
         services = jsonObj['services']['data'];
-        print(services);
+        // print(services);
       });
     } else {
       // return error message
