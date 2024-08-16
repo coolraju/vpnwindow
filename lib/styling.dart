@@ -77,6 +77,66 @@ ButtonStyle buttonStyle(BuildContext context) {
   );
 }
 
+ButtonStyle buttonStyle1(BuildContext context) {
+  return ButtonStyle(
+    backgroundColor: MaterialStateProperty.all<Color>(
+      _isDarkMode
+          ? darkTheme.colorScheme.onPrimary
+          : lightTheme.colorScheme.onPrimary,
+    ),
+    foregroundColor: MaterialStateProperty.all<Color>(
+      _isDarkMode
+          ? darkTheme.colorScheme.onPrimary
+          : lightTheme.colorScheme.onPrimary,
+    ),
+    textStyle: MaterialStateProperty.resolveWith<TextStyle>(
+      (states) => TextStyle(
+        color: _isDarkMode
+            ? darkTheme.colorScheme.onSecondary
+            : lightTheme.colorScheme.onSecondary,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    // fixedSize: MaterialStateProperty.all<Size>(Size(165, 60)),
+    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+      ),
+    ),
+  );
+}
+
+ButtonStyle buttonStyle5(BuildContext context) {
+  return ButtonStyle(
+    backgroundColor: MaterialStateProperty.all<Color>(
+      _isDarkMode
+          ? darkTheme.colorScheme.primary
+          : lightTheme.colorScheme.primary,
+    ),
+    foregroundColor: MaterialStateProperty.all<Color>(
+      _isDarkMode
+          ? darkTheme.colorScheme.primary
+          : lightTheme.colorScheme.primary,
+    ),
+    textStyle: MaterialStateProperty.resolveWith<TextStyle>(
+      (states) => TextStyle(
+        color: _isDarkMode
+            ? darkTheme.colorScheme.primary
+            : lightTheme.colorScheme.primary,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    // fixedSize: MaterialStateProperty.all<Size>(Size(165, 60)),
+    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+      ),
+    ),
+  );
+}
+
 ButtonStyle buttonStyle2(BuildContext context) {
   return ButtonStyle(
     backgroundColor: MaterialStateProperty.all<Color>(
@@ -99,6 +159,36 @@ ButtonStyle buttonStyle2(BuildContext context) {
       ),
     ),
     fixedSize: MaterialStateProperty.all<Size>(Size(165, 60)),
+    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+      ),
+    ),
+  );
+}
+
+ButtonStyle buttonStyle4(BuildContext context) {
+  return ButtonStyle(
+    backgroundColor: MaterialStateProperty.all<Color>(
+      _isDarkMode
+          ? darkTheme.colorScheme.onPrimary
+          : lightTheme.colorScheme.onPrimary,
+    ),
+    foregroundColor: MaterialStateProperty.all<Color>(
+      _isDarkMode
+          ? darkTheme.colorScheme.onPrimary
+          : lightTheme.colorScheme.onPrimary,
+    ),
+    textStyle: MaterialStateProperty.resolveWith<TextStyle>(
+      (states) => TextStyle(
+        color: _isDarkMode
+            ? darkTheme.colorScheme.onSecondary
+            : lightTheme.colorScheme.onSecondary,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    fixedSize: MaterialStateProperty.all<Size>(Size(165, 50)),
     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
       RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),

@@ -7,6 +7,7 @@ import 'styling.dart';
 import 'Comman.dart';
 import 'package:simple_ripple_animation/simple_ripple_animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:async';
 
 class ServiceDetailScreen extends StatefulWidget {
   final service;
@@ -32,6 +33,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen>
   bool isclicked = false;
   List<dynamic> servers = [];
   int? _selectedItem;
+  Duration duration = Duration(hours: 0); // Set initial duration here
+  Timer? timer;
 
   //init state
   initState() {
@@ -50,7 +53,20 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen>
   @override
   void dispose() {
     _controller.dispose();
+    timer?.cancel();
+    _animation.removeListener(() {});
+    // _disconnectVpn();
     super.dispose();
+  }
+
+  void startTimer() {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (mounted) {
+          duration = duration + const Duration(seconds: 1);
+        }
+      });
+    });
   }
 
   checkVPnisconnected() async {
@@ -76,6 +92,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen>
       Uri.parse(
           '$baseurl/addon-modules/smartersvpn?action=getservice&serviceid=${widget.service['id']}&userid=${widget.service['user_id']}'),
       headers: {
+        // ignore: prefer_interpolation_to_compose_strings
         'Authorization': 'Bearer ' + prefs.getString('accesstoken'),
       },
     );
@@ -110,7 +127,6 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen>
 
   void _connectVpn() async {
     _log = '';
-
     try {
       _controller.repeat();
       setState(() {
@@ -134,7 +150,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen>
             '--config',
             _configFilePath!,
             '--auth-user-pass',
-            tempDir.path + '\\auth.txt'
+            '${tempDir.path}\\auth.txt'
           ],
           runInShell: true,
         );
@@ -144,13 +160,16 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen>
             isconnected = true;
             isclicked = false;
             _controller.stop();
+            // startTimer();
             _log += data;
+            print(data);
           });
         });
 
         _vpnProcess?.stderr.transform(SystemEncoding().decoder).listen((data) {
           setState(() {
             _log += data;
+            print(data);
           });
         });
       } else if (Platform.isMacOS) {
@@ -179,6 +198,10 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final hours = twoDigits(duration.inHours);
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
     return Scaffold(
       appBar: AppBar(
         title: Text('VPN Connection App'),
@@ -207,18 +230,18 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('00:00:00',
+                  Text('$hours:$minutes:$seconds',
                       style: TextStyle(fontSize: 30, color: Colors.white)),
                 ],
               ),
               SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Lodon Server', style: LabelStyle),
-                ],
-              ),
-              SizedBox(height: 20),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     Text('Lodon Server', style: LabelStyle),
+              //   ],
+              // ),
+              // SizedBox(height: 20),
               //big circular button
               GestureDetector(
                 onTap: () {
@@ -309,7 +332,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen>
                       child: Center(
                         child: Theme(
                           data: Theme.of(context).copyWith(
-                            canvasColor: Colors.blue.shade200,
+                            canvasColor: Theme.of(context).colorScheme.primary,
                           ),
                           child: DropdownButton(
                             value: _selectedItem,
@@ -365,40 +388,86 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen>
                   ),
                 ],
               ),
-
-              // Text('Product Name: ${widget.service['products']['title']}',
-              //     style: LabelStyle),
-              // Text('Service Type: ${widget.service['period']}',
-              //     style: LabelStyle),
-              // Text('Service Status: ${widget.service['status']}',
-              //     style: LabelStyle),
-              // Text('Service Created At: ${widget.service['created_at']}',
-              //     style: LabelStyle),
-              // Text('Service Updated At: ${widget.service['updated_at']}',
-              //     style: LabelStyle),
-              //circle button to connect
-              // ElevatedButton(
-              //   onPressed: () {
-              //     _configFilePath = '';
-              //     _connectVpn();
-              //   },
-              //   child: Text('Connect', style: LabelStyle),
-              // ),
-              // isconnected == true
-              //     ? (ElevatedButton(
-              //         onPressed: () {
-              //           _disconnectVpn();
-              //         },
-              //         child: Text('Disconnect', style: LabelStyle)))
-              //     : SizedBox(height: 0),
-              //show logs
-              // Text('Status: ' + loading, style: LabelStyle),
-              // Text(_log, style: LabelStyle),
-              // Expanded(
-              //   child: SingleChildScrollView(
-              //     child: Text(_log, style: LabelStyle),
-              //   ),
-              // ),
+              Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {},
+                      child: Row(
+                        children: [
+                          Image.asset('assets/nolocation.png', width: 20),
+                          SizedBox(width: 10),
+                          Text('No location', style: LabelStyle),
+                        ],
+                      ),
+                      style: buttonStyle4(context),
+                    ),
+                    SizedBox(width: 20),
+                    TextButton(
+                      onPressed: () {},
+                      child: Row(
+                        children: [
+                          Image.asset('assets/nolocation.png', width: 20),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 5),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Smart Location', style: LabelStyle),
+                                  Text('192.168.1.2', style: LabelStyle2),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      style: buttonStyle4(context),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Container(
+                width: double.maxFinite,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('assets/upload.png', width: 20),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('0.0', style: LabelStyle),
+                            Text('Upload', style: LabelStyle2),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Text('|', style: LabelStyle),
+                    SizedBox(width: 10),
+                    Image.asset('assets/download.png', width: 20),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('0.0', style: LabelStyle),
+                            Text('Download', style: LabelStyle2),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
             ],
           ),
         ),

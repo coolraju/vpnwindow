@@ -5,15 +5,16 @@ import 'dart:io' show Platform;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'theme.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     DesktopWindow.setWindowSize(const Size(500, 900));
     //disable maximize button
     DesktopWindow.setMinWindowSize(const Size(500, 900));
   }
-
+  await dotenv.load(fileName: "assets/.env");
   runApp(SmarterVPNConnect());
 }
 

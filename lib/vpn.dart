@@ -67,7 +67,7 @@ class _VpnScreenState extends State<VpnScreen> {
             data: Theme.of(context).copyWith(
               cardColor: const Color.fromARGB(255, 94, 88, 88),
             ),
-            child: moreMenu(_prefs, context),
+            child: moreMenu1(_prefs, context),
           ),
         ],
       ),
@@ -127,6 +127,24 @@ class _VpnScreenState extends State<VpnScreen> {
                                   cursor: SystemMouseCursors.click,
                                   child: GestureDetector(
                                     onTap: () {
+                                      print(services[index]);
+                                      //set preference
+                                      _prefs.then((SharedPreferences prefs) {
+                                        prefs.setString('serviceid',
+                                            services[index]['id'].toString());
+                                        prefs.setString(
+                                            'productname',
+                                            services[index]['products']
+                                                ['title']);
+                                        prefs.setString('next_due_date',
+                                            services[index]['next_due_date']);
+                                        prefs.setString('status',
+                                            services[index]['status']);
+                                        prefs.setString(
+                                            'activedevices',
+                                            services[index]['product_id']
+                                                .toString());
+                                      });
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
